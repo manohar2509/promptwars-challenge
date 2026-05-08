@@ -1,20 +1,70 @@
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
+*.pyd
 .Python
+
+# Build / distribution
 build/
 dist/
 *.egg-info/
+*.egg
+
+# Virtual environments
 .env
+.env.*
+!.env.example
 .venv/
 venv/
+env/
+
+# Secrets & credentials
+*.pem
+*.key
+*.p12
+*.pfx
+service-account*.json
+*-service-account.json
+gcp-credentials*.json
+google-credentials*.json
+credentials.json
+token.json
+secrets/
+
+# Test artefacts
 .pytest_cache/
-.ruff_cache/
-htmlcov/
 .coverage
+.coverage.*
+htmlcov/
+coverage.xml
+pytest_cache/
+smoke_test.py
+
+# Linting / tooling caches
+.ruff_cache/
+.mypy_cache/
+.dmypy.json
+
+# Logs
+*.log
+logs/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/settings.json
+*.swp
+*.swo
+
+# CI / deployment helpers (local only)
+deploy.log
+/tmp/
+
+# Copilot / AI tools (local only)
 .claude
 .copilot*
 AI*
-smoke_test.py
 SUBMISSION.md
