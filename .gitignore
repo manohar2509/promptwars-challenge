@@ -16,3 +16,5 @@ htmlcov/
 .claude
 .copilot*
 AI*
+smoke_test.py
+SUBMISSION.md
