@@ -8,8 +8,9 @@
   display: flex;
 }
 
-/* Loading overlay */
+/* Loading overlay — hidden by default, shown by JS during fetch */
 #loading-overlay {
+  display: none;
   transition: opacity 0.3s ease;
 }
 

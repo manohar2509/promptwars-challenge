@@ -1,19 +1,26 @@
 /**
  * Travel Planning Engine - Client-side JavaScript
- * Handles form serialization for HTMX + JSON API compatibility
+ * Handles form submission as JSON via fetch (bypasses HTMX form encoding issues)
  */
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('preferences-form');
   if (!form) return;
 
-  // Intercept HTMX request to serialize form as JSON
-  form.addEventListener('htmx:configRequest', (evt) => {
-    evt.detail.headers['Content-Type'] = 'application/json';
-    
+  form.addEventListener('submit', async (evt) => {
+    evt.preventDefault();
+
+    const errorDiv = document.getElementById('form-error');
+    const overlay = document.getElementById('loading-overlay');
+    const submitBtn = form.querySelector('button[type="submit"]');
+
+    // Show loading state
+    if (overlay) overlay.style.display = 'flex';
+    if (submitBtn) submitBtn.disabled = true;
+
     const formData = new FormData(form);
     const interests = formData.getAll('interests');
     const dietaryRestrictions = formData.getAll('dietary_restrictions');
-    
+
     const payload = {
       destination: formData.get('destination'),
       start_date: formData.get('start_date'),
@@ -31,23 +38,54 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
 
-    evt.detail.parameters = payload;
-  });
+    try {
+      const resp = await fetch('/api/plan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'HX-Request': 'true',
+        },
+        body: JSON.stringify(payload),
+      });
 
-  // Handle HTMX errors
-  document.body.addEventListener('htmx:responseError', (evt) => {
-    const errorDiv = document.getElementById('form-error');
-    if (errorDiv) {
+      if (resp.status === 204 || resp.ok) {
+        // Check for HX-Redirect header
+        const redirect = resp.headers.get('HX-Redirect');
+        if (redirect) {
+          window.location.href = redirect;
+          return;
+        }
+        // Fallback: parse JSON response for plan id
+        const data = await resp.json();
+        if (data.id) {
+          window.location.href = `/plan/${data.id}`;
+          return;
+        }
+      }
+
+      // Error response
+      const text = await resp.text();
+      let html;
       try {
-        const data = JSON.parse(evt.detail.xhr.responseText);
-        const messages = data.detail?.map(e => e.msg || e.message || JSON.stringify(e)) || [data.detail || 'An error occurred'];
-        errorDiv.innerHTML = `<div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700" role="alert">
+        const data = JSON.parse(text);
+        const messages = Array.isArray(data.detail)
+          ? data.detail.map(e => e.msg || e.message || JSON.stringify(e))
+          : [data.detail || 'An error occurred'];
+        html = `<div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700" role="alert">
           <p class="font-semibold">Please fix the following:</p>
           <ul class="list-disc pl-5 mt-2">${messages.map(m => `<li>${m}</li>`).join('')}</ul>
         </div>`;
       } catch {
-        errorDiv.innerHTML = '<div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700" role="alert">An unexpected error occurred. Please try again.</div>';
+        html = `<div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700" role="alert">${text || 'An unexpected error occurred. Please try again.'}</div>`;
       }
+      if (errorDiv) errorDiv.innerHTML = html;
+    } catch (err) {
+      if (errorDiv) {
+        errorDiv.innerHTML = `<div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700" role="alert">Network error: ${err.message}. Please try again.</div>`;
+      }
+    } finally {
+      if (overlay) overlay.style.display = 'none';
+      if (submitBtn) submitBtn.disabled = false;
     }
   });
 });

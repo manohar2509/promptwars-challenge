@@ -116,8 +116,14 @@ async def refine_plan(request: Request, plan_id: str):
     if not itinerary:
         raise HTTPException(404, "Itinerary not found")
 
-    body = await request.json()
+    body = await request.form()
     message = body.get("text", "").strip()
+    if not message:
+        try:
+            json_body = await request.json()
+            message = json_body.get("text", "").strip()
+        except Exception:
+            pass
     if not message:
         raise HTTPException(400, "Message text is required")
     if len(message) > 1000:
