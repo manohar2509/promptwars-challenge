@@ -173,18 +173,24 @@ def _error_html(title: str, message: str) -> str:
     """
     safe_title = html.escape(title)
     safe_message = html.escape(message)
-    return f"""<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{safe_title} — TravelAI</title><script src="https://cdn.tailwindcss.com"></script></head>
-<body class="bg-gray-50 min-h-screen flex items-center justify-center">
-<div class="text-center px-6" role="alert" aria-live="assertive">
-  <span class="text-6xl mb-6 block" aria-hidden="true">🌍</span>
-  <h1 class="text-3xl font-bold text-gray-900 mb-3">{safe_title}</h1>
-  <p class="text-gray-600 mb-8 max-w-md mx-auto">{safe_message}</p>
-  <a href="/" class="inline-block bg-blue-500 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-xl transition-colors focus:ring-4 focus:ring-blue-300">
-    ← Back to Home
-  </a>
-</div></body></html>"""
+    return (
+        "<!DOCTYPE html>"
+        '<html lang="en"><head><meta charset="UTF-8">'
+        '<meta name="viewport" content="width=device-width,initial-scale=1">'
+        f"<title>{safe_title} — TravelAI</title>"
+        '<script src="https://cdn.tailwindcss.com"></script></head>'
+        '<body class="bg-gray-50 min-h-screen flex items-center justify-center">'
+        '<div class="text-center px-6" role="alert" aria-live="assertive">'
+        '  <span class="text-6xl mb-6 block" aria-hidden="true">🌍</span>'
+        f'  <h1 class="text-3xl font-bold text-gray-900 mb-3">{safe_title}</h1>'
+        f'  <p class="text-gray-600 mb-8 max-w-md mx-auto">{safe_message}</p>'
+        '  <a href="/" class="inline-block bg-blue-500 hover:bg-blue-700'
+        " text-white font-semibold py-3 px-8 rounded-xl"
+        ' transition-colors focus:ring-4 focus:ring-blue-300">'
+        "    ← Back to Home"
+        "  </a>"
+        "</div></body></html>"
+    )
 
 
 # ---------------------------------------------------------------------------
