@@ -30,6 +30,7 @@ RULES:
   - category: "food" | "transport" | "activity" | "accommodation"
   - weather_sensitive: boolean (true for outdoor activities)
   - accessibility_notes: string (relevant accessibility info)
+  - location: object with "lat" (float) and "lng" (float) and "address" (string) — use real coordinates for the venue
   - alternatives: array of 2 alternative activity objects (same structure, no nested alternatives)
 - Each day needs: day_number, date (YYYY-MM-DD format), slots array, day_summary
 - Include a budget object with: total_budget, accommodation, transport, food, activities

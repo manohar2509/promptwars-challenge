@@ -118,19 +118,29 @@
 {% if maps_api_key %}
 <script id="itinerary-data" type="application/json">{{ itinerary_days_json | safe }}</script>
 <script>
+    var DEST_CENTER = {lat: {{ dest_lat|default(0) }}, lng: {{ dest_lng|default(0) }}};
+
     function initMapFromItinerary() {
-        const slots = JSON.parse(document.getElementById('itinerary-data').textContent);
-        const markers = [];
-        slots.forEach(day => {
-            day.slots.forEach(slot => {
+        var mapDiv = document.getElementById('map');
+        if (!mapDiv || !window.google) return;
+
+        var slots = JSON.parse(document.getElementById('itinerary-data').textContent);
+        var markers = [];
+        slots.forEach(function(day) {
+            day.slots.forEach(function(slot) {
                 if (slot.location && slot.location.lat && slot.location.lng) {
                     markers.push({lat: slot.location.lat, lng: slot.location.lng, name: slot.activity_name});
                 }
             });
         });
-        if (markers.length > 0) {
-            initMap(markers, markers[0]);
+
+        // Always initialize map — use markers if available, otherwise destination center
+        var center = markers.length > 0 ? markers[0] : DEST_CENTER;
+        if (center.lat === 0 && center.lng === 0) {
+            mapDiv.innerHTML = '<p class="text-gray-400 text-sm p-4 text-center">Map data unavailable for this destination</p>';
+            return;
         }
+        initMap(markers.length > 0 ? markers : [{lat: center.lat, lng: center.lng, name: '{{ itinerary.destination }}'}], center);
     }
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key={{ maps_api_key }}&callback=initMapFromItinerary" async defer></script>

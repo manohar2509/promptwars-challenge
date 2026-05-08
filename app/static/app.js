@@ -64,24 +64,28 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // Error response
-      const text = await resp.text();
       let html;
       try {
-        const data = JSON.parse(text);
-        const messages = Array.isArray(data.detail)
-          ? data.detail.map(e => e.msg || e.message || JSON.stringify(e))
-          : [data.detail || 'An error occurred'];
-        html = `<div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700" role="alert">
-          <p class="font-semibold">Please fix the following:</p>
-          <ul class="list-disc pl-5 mt-2">${messages.map(m => `<li>${m}</li>`).join('')}</ul>
-        </div>`;
+        const text = await resp.text();
+        try {
+          const data = JSON.parse(text);
+          const messages = Array.isArray(data.detail)
+            ? data.detail.map(e => e.msg || e.message || JSON.stringify(e))
+            : [data.detail || 'Something went wrong. Please try again.'];
+          html = `<div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700" role="alert">
+            <p class="font-semibold">Please fix the following:</p>
+            <ul class="list-disc pl-5 mt-2">${messages.map(m => `<li>${m}</li>`).join('')}</ul>
+          </div>`;
+        } catch {
+          html = `<div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700" role="alert">Something went wrong. Please check your inputs and try again.</div>`;
+        }
       } catch {
-        html = `<div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700" role="alert">${text || 'An unexpected error occurred. Please try again.'}</div>`;
+        html = `<div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700" role="alert">Something went wrong. Please try again.</div>`;
       }
       if (errorDiv) errorDiv.innerHTML = html;
     } catch (err) {
       if (errorDiv) {
-        errorDiv.innerHTML = `<div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700" role="alert">Network error: ${err.message}. Please try again.</div>`;
+        errorDiv.innerHTML = `<div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700" role="alert">Unable to connect. Please check your internet connection and try again.</div>`;
       }
     } finally {
       if (overlay) overlay.style.display = 'none';
@@ -94,25 +98,29 @@ document.addEventListener('DOMContentLoaded', () => {
  * Initialize Google Map on itinerary page
  */
 function initMap(slots, center) {
-  if (!window.google || !document.getElementById('map')) return;
+  var mapDiv = document.getElementById('map');
+  if (!window.google || !mapDiv) return;
 
-  const map = new google.maps.Map(document.getElementById('map'), {
+  // Clear loading text
+  mapDiv.innerHTML = '';
+
+  var map = new google.maps.Map(mapDiv, {
     zoom: 13,
-    center: center,
+    center: { lat: center.lat, lng: center.lng },
     mapTypeControl: false,
   });
 
-  const bounds = new google.maps.LatLngBounds();
-  const path = [];
+  var bounds = new google.maps.LatLngBounds();
+  var path = [];
 
-  slots.forEach((slot, index) => {
+  slots.forEach(function(slot, index) {
     if (slot.lat && slot.lng) {
-      const position = { lat: slot.lat, lng: slot.lng };
-      const marker = new google.maps.Marker({
-        position,
-        map,
+      var position = { lat: slot.lat, lng: slot.lng };
+      new google.maps.Marker({
+        position: position,
+        map: map,
         label: String(index + 1),
-        title: slot.name,
+        title: slot.name || '',
       });
       bounds.extend(position);
       path.push(position);
@@ -121,16 +129,16 @@ function initMap(slots, center) {
 
   if (path.length > 1) {
     new google.maps.Polyline({
-      path,
+      path: path,
       geodesic: true,
       strokeColor: '#3B82F6',
       strokeOpacity: 0.8,
       strokeWeight: 3,
-      map,
+      map: map,
     });
-  }
-
-  if (path.length > 0) {
     map.fitBounds(bounds);
+  } else if (path.length === 1) {
+    map.setCenter(path[0]);
+    map.setZoom(14);
   }
 }

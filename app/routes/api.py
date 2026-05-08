@@ -62,7 +62,15 @@ async def create_plan(request: Request, preferences: TravelPreferences):
     # 4. Generate itinerary via Gemini
     itinerary = await planner.generate_itinerary(preferences, places, forecast)
 
-    # 5. Validate constraints
+    # 5. Enrich slots with geocoded locations for map display
+    for day in itinerary.days:
+        for slot in day.slots:
+            if not slot.location or not slot.location.get("lat"):
+                geo = await maps.geocode(f"{slot.activity_name}, {preferences.destination}")
+                if geo:
+                    slot.location = {"lat": geo["latitude"], "lng": geo["longitude"], "address": slot.activity_name}
+
+    # 6. Validate constraints
     result = await constraints.validate_itinerary(itinerary)
     if not result.valid:
         try:
@@ -70,11 +78,11 @@ async def create_plan(request: Request, preferences: TravelPreferences):
         except Exception as e:
             logger.warning("Budget rebalance failed: %s", e)
 
-    # 6. Save to storage
+    # 7. Save to storage
     await storage.save_itinerary(itinerary)
     logger.info("Created itinerary %s for %s", itinerary.id, preferences.destination)
 
-    # 7. Return redirect for HTMX or JSON for API
+    # 8. Return redirect for HTMX or JSON for API
     if request.headers.get("HX-Request"):
         return Response(
             status_code=204,

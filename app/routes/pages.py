@@ -32,6 +32,13 @@ async def itinerary_page(request: Request, plan_id: str):
         [day.model_dump(mode="json") for day in itinerary.days]
     )
 
+    # Geocode destination for map fallback center
+    from app.services.google_maps import GoogleMapsService
+    maps_svc = GoogleMapsService()
+    dest_coords = await maps_svc.geocode(itinerary.destination)
+    dest_lat = dest_coords.get("latitude", 0)
+    dest_lng = dest_coords.get("longitude", 0)
+
     return templates.TemplateResponse(
         "itinerary.html",
         {
@@ -40,5 +47,7 @@ async def itinerary_page(request: Request, plan_id: str):
             "itinerary_days_json": itinerary_days_json,
             "plan_id": plan_id,
             "maps_api_key": settings.google_maps_api_key,
+            "dest_lat": dest_lat,
+            "dest_lng": dest_lng,
         },
     )
