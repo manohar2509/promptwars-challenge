@@ -1,10 +1,10 @@
 """Tests for persistence layer — in-memory storage."""
-import pytest
 from datetime import date
+
+import pytest
+
+from app.models.itinerary import ActivitySlot, BudgetBreakdown, Itinerary, ItineraryDay, TimeSlot
 from app.services.firestore import FirestoreService
-from app.models.itinerary import (
-    Itinerary, ItineraryDay, ActivitySlot, BudgetBreakdown, TimeSlot
-)
 
 
 @pytest.fixture(autouse=True)

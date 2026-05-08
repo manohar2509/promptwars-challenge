@@ -1,7 +1,10 @@
-name: Deploy to Cloud Run
+name: CI/CD — Test & Deploy to Cloud Run
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
     branches:
       - main
   workflow_dispatch:
@@ -31,7 +34,7 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Deploy to Cloud Run (source deploy — no Docker push needed)
+      - name: Deploy to Cloud Run (source deploy)
         run: |
           gcloud run deploy "$SERVICE_NAME" \
             --source . \
@@ -40,8 +43,8 @@ jobs:
             --allow-unauthenticated \
             --memory 256Mi \
             --min-instances 0 \
-            --max-instances 1 \
-            --set-env-vars "ENVIRONMENT=production" \
+            --max-instances 3 \
+            --set-env-vars "ENVIRONMENT=production,LOG_LEVEL=INFO" \
             --set-secrets "GEMINI_API_KEY=gemini-api-key:latest,GOOGLE_MAPS_API_KEY=google-maps-api-key:latest" \
             --quiet
 

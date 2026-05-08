@@ -1,18 +1,38 @@
-"""Calendar export service — generates .ics files from itineraries."""
-from icalendar import Calendar, Event
+"""Calendar export service — generates .ics files from itineraries.
+
+Produces RFC 5545-compliant iCalendar files that can be imported into
+Google Calendar, Apple Calendar, Outlook, and other standards-compliant
+calendar applications.
+"""
+
 from datetime import datetime, timedelta
-from app.models.itinerary import Itinerary
+from typing import Any
+
+from icalendar import Calendar, Event
+
+from app.models.itinerary import ActivitySlot, Itinerary
 
 
 class CalendarService:
-    """Generate .ics calendar files from itineraries."""
+    """Generate .ics calendar files from itineraries.
 
-    SLOT_HOURS = {"morning": 9, "afternoon": 13, "evening": 18}
+    Slot start times are mapped from the symbolic time slot names
+    (morning, afternoon, evening) to fixed local hours.
+    """
+
+    SLOT_HOURS: dict[str, int] = {"morning": 9, "afternoon": 13, "evening": 18}
 
     def generate_ics(self, itinerary: Itinerary) -> bytes:
-        """Generate .ics file content from an itinerary."""
+        """Generate .ics file content from an itinerary.
+
+        Args:
+            itinerary: The itinerary to export.
+
+        Returns:
+            Raw bytes of the iCalendar file.
+        """
         cal = Calendar()
-        cal.add("prodid", "-//Travel Planning Engine//EN")
+        cal.add("prodid", "-//TravelAI Planning Engine//EN")
         cal.add("version", "2.0")
         cal.add("calscale", "GREGORIAN")
         cal.add("x-wr-calname", f"Trip to {itinerary.destination}")
@@ -35,15 +55,31 @@ class CalendarService:
 
         return cal.to_ical()
 
-    def _slot_to_datetime(self, day_date, time_slot_value: str) -> datetime:
-        """Convert a day date and time slot to a datetime."""
+    def _slot_to_datetime(self, day_date: Any, time_slot_value: str) -> datetime:
+        """Convert a day date and time slot to a datetime.
+
+        Args:
+            day_date: The calendar date of the day.
+            time_slot_value: One of ``morning``, ``afternoon``, ``evening``.
+
+        Returns:
+            A ``datetime`` at the corresponding local hour.
+        """
         hour = self.SLOT_HOURS.get(time_slot_value, 9)
         return datetime.combine(
             day_date, datetime.min.time().replace(hour=hour)
         )
 
-    def _build_description(self, slot) -> str:
-        """Build a rich event description from slot data."""
+    @staticmethod
+    def _build_description(slot: ActivitySlot) -> str:
+        """Build a rich event description from slot data.
+
+        Args:
+            slot: The activity slot to describe.
+
+        Returns:
+            Multi-line description string.
+        """
         parts = [slot.description]
         if slot.estimated_cost > 0:
             parts.append(f"Estimated cost: ${slot.estimated_cost:.2f}")

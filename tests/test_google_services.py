@@ -1,16 +1,22 @@
 """Tests for Google services — Maps, Calendar, Weather."""
-import pytest
-from datetime import date, timedelta
-from unittest.mock import patch, MagicMock
-import respx
-import httpx
+from datetime import date
 
+import httpx
+import pytest
+import respx
+
+from app.models.itinerary import ActivitySlot, BudgetBreakdown, Itinerary, ItineraryDay, TimeSlot
+from app.services.google_calendar import CalendarService
 from app.services.google_maps import GoogleMapsService
 from app.services.weather import WeatherService
-from app.services.google_calendar import CalendarService
-from app.models.itinerary import (
-    Itinerary, ItineraryDay, ActivitySlot, BudgetBreakdown, TimeSlot
-)
+
+
+@pytest.fixture(autouse=True)
+def clear_geocode_cache():
+    """Clear geocode cache before each test to prevent cross-test interference."""
+    GoogleMapsService._geocode_cache.clear()
+    yield
+    GoogleMapsService._geocode_cache.clear()
 
 
 # --- Google Maps Tests ---

@@ -4,17 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Travel Planning Engine{% endblock %}</title>
-    <meta name="description" content="AI-powered travel planning with dynamic itineraries, real-time updates, and interactive maps">
-    
+    <meta name="description" content="AI-powered travel planning with dynamic itineraries, real-time weather updates, and interactive Google Maps">
+    <meta name="theme-color" content="#3B82F6">
+    <meta name="robots" content="index, follow">
+
     <!-- TailwindCSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
-    
+
     <!-- Custom styles -->
     <link rel="stylesheet" href="/static/style.css">
-    
+
     <script>
         tailwind.config = {
             theme: {
@@ -30,15 +32,15 @@
     </script>
 </head>
 <body class="h-full bg-gray-50 text-gray-900">
-    <!-- Skip navigation for accessibility -->
-    <a href="#main-content" class="skip-link">Skip to main content</a>
-    
+    <!-- Skip navigation for accessibility (WCAG 2.4.1) -->
+    <a href="#main-content" class="skip-link" aria-label="Skip to main content">Skip to main content</a>
+
     <!-- Navigation -->
     <nav class="bg-white shadow-sm border-b" role="navigation" aria-label="Main navigation">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
-                <a href="/" class="flex items-center space-x-2">
-                    <span class="text-2xl" role="img" aria-label="globe">🌍</span>
+                <a href="/" class="flex items-center space-x-2" aria-label="TravelAI Home">
+                    <span class="text-2xl" aria-hidden="true">🌍</span>
                     <span class="text-xl font-bold text-primary">TravelAI</span>
                 </a>
                 <div class="flex items-center space-x-4">
@@ -49,16 +51,16 @@
     </nav>
 
     <!-- Loading overlay (hidden by default, shown by HTMX indicator) -->
-    <div id="loading-overlay" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" style="display:none;">
+    <div id="loading-overlay" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" style="display:none;" role="status" aria-live="assertive" aria-label="Loading">
         <div class="bg-white rounded-2xl p-8 shadow-xl text-center max-w-sm mx-4">
-            <div class="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto mb-4"></div>
+            <div class="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto mb-4" aria-hidden="true"></div>
             <p class="text-lg font-semibold text-gray-800">Planning your trip...</p>
             <p class="text-sm text-gray-500 mt-2">Our AI is crafting your perfect itinerary</p>
         </div>
     </div>
 
     <!-- Main content -->
-    <main id="main-content" role="main" class="min-h-[calc(100vh-8rem)]">
+    <main id="main-content" role="main" class="min-h-[calc(100vh-8rem)]" tabindex="-1">
         {% block content %}{% endblock %}
     </main>
 
@@ -66,6 +68,9 @@
     <footer class="bg-white border-t py-6 mt-8" role="contentinfo">
         <div class="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500">
             <p>&copy; 2026 TravelAI — Your Intelligent Travel Companion</p>
+            <p class="mt-1 text-xs text-gray-400">
+                Powered by Google Gemini AI, Google Maps, and Google Cloud
+            </p>
         </div>
     </footer>
 

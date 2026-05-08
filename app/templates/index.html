@@ -10,18 +10,19 @@
             Plan Your Perfect Trip
         </h1>
         <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-            Share your preferences and get a personalized day-by-day itinerary 
+            Share your preferences and get a personalized day-by-day itinerary
             with weather-aware scheduling and budget tracking.
         </p>
     </div>
 
-    <!-- Error display area -->
-    <div id="form-error" class="mb-6" role="alert" aria-live="polite"></div>
+    <!-- Error display area (ARIA live region for screen readers) -->
+    <div id="form-error" class="mb-6" aria-live="polite"></div>
 
     <!-- Preference Form -->
     <form id="preferences-form"
-          class="bg-white rounded-2xl shadow-lg p-8 space-y-8">
-        
+          class="bg-white rounded-2xl shadow-lg p-8 space-y-8"
+          novalidate>
+
         <!-- Destination -->
         <div>
             <label for="destination" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -30,8 +31,10 @@
             <input type="text" id="destination" name="destination" required
                    minlength="2" maxlength="100"
                    placeholder="e.g., Paris, Tokyo, New York"
+                   autocomplete="off"
                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-lg"
-                   aria-describedby="destination-help">
+                   aria-describedby="destination-help"
+                   aria-required="true">
             <p id="destination-help" class="text-sm text-gray-500 mt-1">City, country, or region</p>
         </div>
 
@@ -42,14 +45,16 @@
                     Start Date <span class="text-red-500" aria-hidden="true">*</span>
                 </label>
                 <input type="date" id="start_date" name="start_date" required
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                       aria-required="true">
             </div>
             <div>
                 <label for="end_date" class="block text-sm font-semibold text-gray-700 mb-2">
                     End Date <span class="text-red-500" aria-hidden="true">*</span>
                 </label>
                 <input type="date" id="end_date" name="end_date" required
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                       aria-required="true">
             </div>
         </div>
 
@@ -60,8 +65,11 @@
                     Budget <span class="text-red-500" aria-hidden="true">*</span>
                 </label>
                 <input type="number" id="budget_amount" name="budget_amount" required
-                       min="1" step="0.01" placeholder="1500"
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                       min="1" max="1000000" step="0.01" placeholder="1500"
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                       aria-required="true"
+                       aria-describedby="budget-help">
+                <p id="budget-help" class="text-sm text-gray-500 mt-1">Total trip budget (must be positive)</p>
             </div>
             <div>
                 <label for="budget_currency" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -86,7 +94,7 @@
                 Interests <span class="text-red-500" aria-hidden="true">*</span>
                 <span class="font-normal text-gray-500">(select at least one)</span>
             </legend>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3" role="group" aria-label="Interest categories">
                 {% for interest in [
                     ("culture", "🏛️", "Culture & History"),
                     ("food", "🍽️", "Food & Dining"),
@@ -98,8 +106,10 @@
                 ] %}
                 <label class="flex items-center space-x-2 p-3 border rounded-lg cursor-pointer hover:bg-blue-50 transition-colors has-[:checked]:bg-blue-50 has-[:checked]:border-primary">
                     <input type="checkbox" name="interests" value="{{ interest[0] }}"
-                           class="rounded text-primary focus:ring-primary">
-                    <span>{{ interest[1] }} {{ interest[2] }}</span>
+                           class="rounded text-primary focus:ring-primary"
+                           id="interest-{{ interest[0] }}">
+                    <span aria-hidden="true">{{ interest[1] }}</span>
+                    <span>{{ interest[2] }}</span>
                 </label>
                 {% endfor %}
             </div>
@@ -111,13 +121,15 @@
                 <legend class="text-sm font-semibold text-gray-700 mb-3">
                     Travel Style <span class="text-red-500" aria-hidden="true">*</span>
                 </legend>
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Travel style">
                     {% for style in [("solo", "🧳", "Solo"), ("couple", "💑", "Couple"), ("family", "👨‍👩‍👧‍👦", "Family"), ("group", "👥", "Group")] %}
                     <label class="flex items-center space-x-2 p-3 border rounded-lg cursor-pointer hover:bg-blue-50 transition-colors has-[:checked]:bg-blue-50 has-[:checked]:border-primary">
                         <input type="radio" name="travel_style" value="{{ style[0] }}" required
                                class="text-primary focus:ring-primary"
+                               id="style-{{ style[0] }}"
                                {{ "checked" if style[0] == "solo" else "" }}>
-                        <span>{{ style[1] }} {{ style[2] }}</span>
+                        <span aria-hidden="true">{{ style[1] }}</span>
+                        <span>{{ style[2] }}</span>
                     </label>
                     {% endfor %}
                 </div>
@@ -128,29 +140,35 @@
                 </label>
                 <input type="number" id="group_size" name="group_size" value="1"
                        min="1" max="20"
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                       aria-describedby="group-size-help">
+                <p id="group-size-help" class="text-sm text-gray-500 mt-1">Number of travellers (1–20)</p>
             </div>
         </div>
 
         <!-- Accessibility Section (collapsible) -->
         <details class="border rounded-lg p-4">
             <summary class="text-sm font-semibold text-gray-700 cursor-pointer">
-                ♿ Accessibility & Dietary Needs
+                <span aria-hidden="true">♿</span> Accessibility & Dietary Needs
             </summary>
             <div class="mt-4 space-y-4">
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-4" role="group" aria-label="Physical accessibility">
                     <label class="flex items-center space-x-2">
-                        <input type="checkbox" name="wheelchair_accessible" class="rounded text-primary focus:ring-primary">
+                        <input type="checkbox" name="wheelchair_accessible"
+                               id="wheelchair_accessible"
+                               class="rounded text-primary focus:ring-primary">
                         <span>Wheelchair accessible</span>
                     </label>
                     <label class="flex items-center space-x-2">
-                        <input type="checkbox" name="elevator_required" class="rounded text-primary focus:ring-primary">
+                        <input type="checkbox" name="elevator_required"
+                               id="elevator_required"
+                               class="rounded text-primary focus:ring-primary">
                         <span>Elevator required</span>
                     </label>
                 </div>
                 <div>
-                    <label class="block text-sm text-gray-600 mb-2">Dietary Restrictions</label>
-                    <div class="flex flex-wrap gap-2">
+                    <label class="block text-sm text-gray-600 mb-2" id="dietary-label">Dietary Restrictions</label>
+                    <div class="flex flex-wrap gap-2" role="group" aria-labelledby="dietary-label">
                         {% for diet in ["Vegetarian", "Vegan", "Halal", "Kosher", "Gluten-free", "Nut-free"] %}
                         <label class="flex items-center space-x-1 px-3 py-1 border rounded-full text-sm cursor-pointer hover:bg-gray-100 has-[:checked]:bg-amber-50 has-[:checked]:border-amber-400">
                             <input type="checkbox" name="dietary_restrictions" value="{{ diet.lower() }}" class="sr-only">
@@ -162,6 +180,7 @@
                 <div>
                     <label for="mobility_notes" class="block text-sm text-gray-600 mb-1">Additional Mobility Notes</label>
                     <textarea id="mobility_notes" name="mobility_notes" rows="2"
+                              maxlength="500"
                               placeholder="Any specific mobility requirements..."
                               class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent"></textarea>
                 </div>
@@ -171,30 +190,31 @@
         <!-- Submit -->
         <div class="pt-4">
             <button type="submit"
-                    class="w-full bg-primary hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl text-lg transition-colors focus:ring-4 focus:ring-blue-300">
-                ✨ Generate My Trip
+                    class="w-full bg-primary hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl text-lg transition-colors focus:ring-4 focus:ring-blue-300"
+                    aria-label="Generate my trip itinerary">
+                <span aria-hidden="true">✨</span> Generate My Trip
             </button>
         </div>
     </form>
 
-    <!-- Features -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
+    <!-- Features Section -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16" aria-label="Features">
         <div class="text-center p-6">
-            <div class="text-3xl mb-3">🤖</div>
+            <div class="text-3xl mb-3" aria-hidden="true">🤖</div>
             <h3 class="font-semibold mb-2">AI-Powered Planning</h3>
-            <p class="text-gray-600 text-sm">Advanced AI creates personalized itineraries tailored to your preferences</p>
+            <p class="text-gray-600 text-sm">Google Gemini AI creates personalized itineraries tailored to your preferences</p>
         </div>
         <div class="text-center p-6">
-            <div class="text-3xl mb-3">🗺️</div>
+            <div class="text-3xl mb-3" aria-hidden="true">🗺️</div>
             <h3 class="font-semibold mb-2">Interactive Maps</h3>
-            <p class="text-gray-600 text-sm">Real venue data, routes, and interactive maps for every stop</p>
+            <p class="text-gray-600 text-sm">Real venue data from Google Maps with routes and interactive markers for every stop</p>
         </div>
         <div class="text-center p-6">
-            <div class="text-3xl mb-3">⚡</div>
+            <div class="text-3xl mb-3" aria-hidden="true">⚡</div>
             <h3 class="font-semibold mb-2">Real-Time Adaptation</h3>
-            <p class="text-gray-600 text-sm">Weather-aware scheduling and instant itinerary refinement</p>
+            <p class="text-gray-600 text-sm">Weather-aware scheduling and instant AI-powered itinerary refinement</p>
         </div>
-    </div>
+    </section>
 </div>
 {% endblock %}
 
@@ -204,7 +224,7 @@
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('start_date').min = today;
     document.getElementById('end_date').min = today;
-    
+
     // Auto-update end_date min when start_date changes
     document.getElementById('start_date').addEventListener('change', (e) => {
         const endInput = document.getElementById('end_date');

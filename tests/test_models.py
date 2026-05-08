@@ -1,17 +1,12 @@
 """Tests for Pydantic models — preferences, itinerary, constraints."""
-import pytest
 from datetime import date, timedelta
-from pydantic import ValidationError
-from app.models.preferences import (
-    TravelPreferences, TravelStyle, Interest, AccessibilityNeeds
-)
-from app.models.itinerary import (
-    ActivitySlot, ItineraryDay, Itinerary, BudgetBreakdown, TimeSlot
-)
-from app.models.constraints import (
-    ConstraintViolation, ValidationResult, ViolationType
-)
 
+import pytest
+from pydantic import ValidationError
+
+from app.models.constraints import ConstraintViolation, ValidationResult, ViolationType
+from app.models.itinerary import ActivitySlot, BudgetBreakdown, Itinerary, ItineraryDay
+from app.models.preferences import Interest, TravelPreferences
 
 # --- Preferences Tests ---
 

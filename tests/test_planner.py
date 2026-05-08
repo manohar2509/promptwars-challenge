@@ -1,11 +1,10 @@
 """Tests for AI planning engine with mocked Gemini responses."""
-import pytest
-import json
 from datetime import date, timedelta
-from unittest.mock import patch, AsyncMock, MagicMock
 
+import pytest
+
+from app.models.preferences import TravelPreferences
 from app.services.planner import PlannerService
-from app.models.preferences import TravelPreferences, TravelStyle, Interest
 
 
 def _valid_prefs(**overrides):
@@ -180,10 +179,14 @@ class TestConstraintService:
 
     @pytest.mark.asyncio
     async def test_schedule_conflict_detected(self):
-        from app.services.constraints import ConstraintService
         from app.models.itinerary import (
-            Itinerary, ItineraryDay, ActivitySlot, BudgetBreakdown, TimeSlot
+            ActivitySlot,
+            BudgetBreakdown,
+            Itinerary,
+            ItineraryDay,
+            TimeSlot,
         )
+        from app.services.constraints import ConstraintService
         service = ConstraintService()
         # Create day with duplicate morning slots
         slot1 = ActivitySlot(

@@ -1,4 +1,10 @@
-/* Custom styles for Travel Planning Engine */
+/* =============================================================
+   Travel Planning Engine – Custom Styles
+   Complements TailwindCSS with HTMX indicators, accessibility
+   enhancements, and micro-animations.
+   ============================================================= */
+
+/* ----- HTMX loading indicator ----- */
 .htmx-indicator {
   display: none;
 }
@@ -8,15 +14,15 @@
   display: flex;
 }
 
-/* Loading overlay — hidden by default, shown by JS during fetch */
+/* ----- Loading overlay (shown by JS during fetch) ----- */
 #loading-overlay {
   display: none;
   transition: opacity 0.3s ease;
 }
 
-/* Smooth slot card transitions */
+/* ----- Slot card hover animation ----- */
 .slot-card {
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .slot-card:hover {
@@ -24,36 +30,102 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Budget bar animation */
+/* ----- Budget bar animation ----- */
 .budget-bar {
   transition: width 0.5s ease;
 }
 
-/* Day tab active state */
+/* ----- Day tab active state ----- */
 .day-tab.active {
   border-bottom-color: #3B82F6;
   color: #3B82F6;
   font-weight: 600;
 }
 
-/* Focus styles for accessibility */
+/* ----- Focus styles for accessibility (WCAG 2.1 AA) ----- */
 :focus-visible {
-  outline: 2px solid #3B82F6;
+  outline: 3px solid #3B82F6;
   outline-offset: 2px;
 }
 
-/* Skip to main content link */
+/* ----- Skip to main content link (keyboard accessibility) ----- */
 .skip-link {
   position: absolute;
   top: -40px;
   left: 0;
   background: #3B82F6;
   color: white;
-  padding: 8px;
+  padding: 8px 16px;
   z-index: 100;
   transition: top 0.3s;
+  font-weight: 600;
+  border-radius: 0 0 4px 0;
 }
 
 .skip-link:focus {
   top: 0;
+}
+
+/* =============================================================
+   Accessibility: Reduced Motion
+   Respects the user's OS-level preference to minimise animations.
+   ============================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .slot-card,
+  .budget-bar,
+  .skip-link,
+  #loading-overlay {
+    transition: none !important;
+  }
+
+  .slot-card:hover {
+    transform: none;
+  }
+
+  .animate-spin {
+    animation: none !important;
+  }
+}
+
+/* =============================================================
+   Accessibility: High Contrast Mode
+   Increases border and outline contrast for users who need it.
+   ============================================================= */
+@media (prefers-contrast: more) {
+  :focus-visible {
+    outline: 3px solid #000;
+    outline-offset: 2px;
+  }
+
+  .slot-card {
+    border-width: 2px;
+    border-color: #333;
+  }
+
+  .day-tab.active {
+    border-bottom-width: 3px;
+    border-bottom-color: #000;
+    color: #000;
+  }
+}
+
+/* =============================================================
+   Print styles
+   Clean print output for itinerary pages.
+   ============================================================= */
+@media print {
+  nav,
+  footer,
+  .skip-link,
+  #loading-overlay,
+  button,
+  form {
+    display: none !important;
+  }
+
+  .slot-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
 }

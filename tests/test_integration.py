@@ -1,14 +1,13 @@
 """Integration tests — full flows with mocked external APIs."""
-import pytest
 from datetime import date, timedelta
-from app.services.firestore import FirestoreService
-from app.services.planner import PlannerService
-from app.services.constraints import ConstraintService
-from app.services.google_calendar import CalendarService
+
+import pytest
+
 from app.models.preferences import TravelPreferences
-from app.models.itinerary import (
-    Itinerary, ItineraryDay, ActivitySlot, BudgetBreakdown, TimeSlot
-)
+from app.services.constraints import ConstraintService
+from app.services.firestore import FirestoreService
+from app.services.google_calendar import CalendarService
+from app.services.planner import PlannerService
 
 
 @pytest.fixture(autouse=True)

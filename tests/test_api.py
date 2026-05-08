@@ -1,9 +1,11 @@
 """Tests for API endpoints."""
-import pytest
 from datetime import date, timedelta
+
+import pytest
+
+from app.models.preferences import TravelPreferences
 from app.services.firestore import FirestoreService
 from app.services.planner import PlannerService
-from app.models.preferences import TravelPreferences
 
 
 @pytest.fixture(autouse=True)
