@@ -6,6 +6,7 @@ weather forecasts. Falls back to deterministic mock data when
 no API key is configured (development mode).
 """
 
+import contextlib
 import json
 import logging
 from datetime import timedelta
@@ -229,10 +230,8 @@ Include a budget breakdown object."""
                 alt_list: list[ActivitySlot] = []
                 for alt in slot_raw.pop("alternatives", []):
                     alt.pop("alternatives", None)  # Strip nested alternatives
-                    try:
+                    with contextlib.suppress(Exception):
                         alt_list.append(ActivitySlot(**alt))
-                    except Exception:
-                        pass  # Skip malformed alternatives
 
                 slot_raw.pop("alternatives", None)
                 try:
