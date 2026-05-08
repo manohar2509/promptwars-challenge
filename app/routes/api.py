@@ -147,7 +147,12 @@ async def disrupt_slot(request: Request, plan_id: str):
     if not itinerary:
         raise HTTPException(404, "Itinerary not found")
 
-    body = await request.json()
+    content_type = request.headers.get("content-type", "")
+    if "application/json" in content_type:
+        body = await request.json()
+    else:
+        form = await request.form()
+        body = dict(form)
     day_num = body.get("day")
     slot_name = body.get("slot")
     reason = body.get("reason", "unavailable")

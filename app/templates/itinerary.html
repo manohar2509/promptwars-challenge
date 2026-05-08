@@ -116,7 +116,7 @@
 
 {% block scripts %}
 {% if maps_api_key %}
-<script id="itinerary-data" type="application/json">{{ itinerary.days | tojson | safe }}</script>
+<script id="itinerary-data" type="application/json">{{ itinerary_days_json | safe }}</script>
 <script>
     function initMapFromItinerary() {
         const slots = JSON.parse(document.getElementById('itinerary-data').textContent);

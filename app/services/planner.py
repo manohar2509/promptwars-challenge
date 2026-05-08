@@ -44,7 +44,7 @@ class PlannerService:
         if settings.gemini_api_key:
             genai.configure(api_key=settings.gemini_api_key)
             self.model = genai.GenerativeModel(
-                "gemini-1.5-flash",
+                "gemini-2.0-flash",
                 system_instruction=SYSTEM_PROMPT,
             )
         else:
