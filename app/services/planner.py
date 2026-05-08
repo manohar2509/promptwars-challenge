@@ -29,28 +29,30 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # System prompt for Gemini — defines output schema and constraints.
 # ---------------------------------------------------------------------------
-SYSTEM_PROMPT = """You are an expert travel planner AI. Generate detailed, realistic day-by-day travel itineraries.
-
-RULES:
-- Each day MUST have exactly 3 slots: morning, afternoon, evening
-- Respect the budget constraint STRICTLY — total costs must not exceed the given budget
-- Consider accessibility needs and dietary restrictions
-- Include a diverse mix of activities matching the user's interests
-- Each slot must have these fields:
-  - time_slot: "morning" | "afternoon" | "evening"
-  - activity_name: string (specific venue/activity name)
-  - description: string (2-3 sentences describing the experience)
-  - duration_minutes: integer (30-480)
-  - estimated_cost: number (realistic local pricing, 0 for free activities)
-  - category: "food" | "transport" | "activity" | "accommodation"
-  - weather_sensitive: boolean (true for outdoor activities)
-  - accessibility_notes: string (relevant accessibility info)
-  - location: object with "lat" (float) and "lng" (float) and "address" (string) — use real coordinates for the venue
-  - alternatives: array of 2 alternative activity objects (same structure, no nested alternatives)
-- Each day needs: day_number, date (YYYY-MM-DD format), slots array, day_summary
-- Include a budget object with: total_budget, accommodation, transport, food, activities
-
-OUTPUT FORMAT: Valid JSON only. No markdown, no explanations."""
+SYSTEM_PROMPT = (
+    "You are an expert travel planner AI. "
+    "Generate detailed, realistic day-by-day travel itineraries.\n\n"
+    "RULES:\n"
+    "- Each day MUST have exactly 3 slots: morning, afternoon, evening\n"
+    "- Respect the budget constraint STRICTLY\n"
+    "- Consider accessibility needs and dietary restrictions\n"
+    "- Include a diverse mix of activities matching the user's interests\n"
+    "- Each slot must have these fields:\n"
+    '  - time_slot: "morning" | "afternoon" | "evening"\n'
+    "  - activity_name: string (specific venue/activity name)\n"
+    "  - description: string (2-3 sentences)\n"
+    "  - duration_minutes: integer (30-480)\n"
+    "  - estimated_cost: number (realistic local pricing, 0 for free)\n"
+    '  - category: "food" | "transport" | "activity" | "accommodation"\n'
+    "  - weather_sensitive: boolean (true for outdoor activities)\n"
+    "  - accessibility_notes: string (relevant accessibility info)\n"
+    '  - location: object with "lat", "lng", and "address"\n'
+    "  - alternatives: array of 2 alternative activity objects\n"
+    "- Each day needs: day_number, date (YYYY-MM-DD), slots, day_summary\n"
+    "- Include a budget object with: total_budget, accommodation, "
+    "transport, food, activities\n\n"
+    "OUTPUT FORMAT: Valid JSON only. No markdown, no explanations."
+)
 
 
 class PlannerService:
@@ -196,7 +198,8 @@ WEATHER FORECAST:
 {json.dumps(weather, indent=2, default=str)}
 
 Generate a complete {prefs.num_days}-day itinerary with realistic local pricing.
-Each day must have day_number (starting from 1), date, 3 slots (morning/afternoon/evening), and day_summary.
+Each day must have day_number (starting from 1), date,
+3 slots (morning/afternoon/evening), and day_summary.
 Include a budget breakdown object."""
 
     # ------------------------------------------------------------------

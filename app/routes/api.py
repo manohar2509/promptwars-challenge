@@ -246,13 +246,13 @@ async def refine_plan(request: Request, plan_id: str) -> Any:
         try:
             json_body = await request.json()
             message = str(json_body.get("text", "")).strip()
-        except Exception:  # noqa: BLE001
+        except Exception:
             logger.debug("Failed to parse JSON body for refine")
     else:
         try:
             body = await request.form()
             message = str(body.get("text", "")).strip()
-        except Exception:  # noqa: BLE001
+        except Exception:
             logger.debug("Failed to parse form body for refine")
 
     # Fallback: try JSON if form parsing yielded nothing
@@ -260,7 +260,7 @@ async def refine_plan(request: Request, plan_id: str) -> Any:
         try:
             json_body = await request.json()
             message = str(json_body.get("text", "")).strip()
-        except Exception:  # noqa: BLE001
+        except Exception:
             logger.debug("Failed to parse fallback JSON body")
 
     if not message:
