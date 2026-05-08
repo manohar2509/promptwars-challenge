@@ -1,0 +1,5 @@
+<!-- Full itinerary content — used as HTMX swap target after refine/disrupt -->
+{% set current_day = itinerary.days[0] %}
+{% set plan_id = plan_id if plan_id is defined else itinerary.id %}
+
+{% include "partials/day_view.html" with context %}

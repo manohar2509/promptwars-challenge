@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}Plan Your Trip — TravelAI{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-12">
+    <!-- Hero Section -->
+    <div class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            Plan Your Perfect Trip
+        </h1>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            Tell us your preferences and our AI will craft a personalized day-by-day itinerary 
+            with real-time weather awareness and budget tracking.
+        </p>
+    </div>
+
+    <!-- Error display area -->
+    <div id="form-error" class="mb-6" role="alert" aria-live="polite"></div>
+
+    <!-- Preference Form -->
+    <form id="preferences-form"
+          hx-post="/api/plan"
+          hx-target="#form-error"
+          hx-swap="innerHTML"
+          hx-indicator="#loading-overlay"
+          class="bg-white rounded-2xl shadow-lg p-8 space-y-8">
+        
+        <!-- Destination -->
+        <div>
+            <label for="destination" class="block text-sm font-semibold text-gray-700 mb-2">
+                Where do you want to go? <span class="text-red-500" aria-hidden="true">*</span>
+            </label>
+            <input type="text" id="destination" name="destination" required
+                   minlength="2" maxlength="100"
+                   placeholder="e.g., Paris, Tokyo, New York"
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-lg"
+                   aria-describedby="destination-help">
+            <p id="destination-help" class="text-sm text-gray-500 mt-1">City, country, or region</p>
+        </div>
+
+        <!-- Dates -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="start_date" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Start Date <span class="text-red-500" aria-hidden="true">*</span>
+                </label>
+                <input type="date" id="start_date" name="start_date" required
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            </div>
+            <div>
+                <label for="end_date" class="block text-sm font-semibold text-gray-700 mb-2">
+                    End Date <span class="text-red-500" aria-hidden="true">*</span>
+                </label>
+                <input type="date" id="end_date" name="end_date" required
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            </div>
+        </div>
+
+        <!-- Budget -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="budget_amount" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Budget <span class="text-red-500" aria-hidden="true">*</span>
+                </label>
+                <input type="number" id="budget_amount" name="budget_amount" required
+                       min="1" step="0.01" placeholder="1500"
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            </div>
+            <div>
+                <label for="budget_currency" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Currency
+                </label>
+                <select id="budget_currency" name="budget_currency"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <option value="USD">USD ($)</option>
+                    <option value="EUR">EUR (€)</option>
+                    <option value="GBP">GBP (£)</option>
+                    <option value="INR">INR (₹)</option>
+                    <option value="JPY">JPY (¥)</option>
+                    <option value="AUD">AUD (A$)</option>
+                    <option value="CAD">CAD (C$)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Interests -->
+        <fieldset>
+            <legend class="text-sm font-semibold text-gray-700 mb-3">
+                Interests <span class="text-red-500" aria-hidden="true">*</span>
+                <span class="font-normal text-gray-500">(select at least one)</span>
+            </legend>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {% for interest in [
+                    ("culture", "🏛️", "Culture & History"),
+                    ("food", "🍽️", "Food & Dining"),
+                    ("adventure", "🧗", "Adventure"),
+                    ("relaxation", "🧘", "Relaxation"),
+                    ("nightlife", "🌙", "Nightlife"),
+                    ("nature", "🌿", "Nature"),
+                    ("shopping", "🛍️", "Shopping")
+                ] %}
+                <label class="flex items-center space-x-2 p-3 border rounded-lg cursor-pointer hover:bg-blue-50 transition-colors has-[:checked]:bg-blue-50 has-[:checked]:border-primary">
+                    <input type="checkbox" name="interests" value="{{ interest[0] }}"
+                           class="rounded text-primary focus:ring-primary">
+                    <span>{{ interest[1] }} {{ interest[2] }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </fieldset>
+
+        <!-- Travel Style & Group Size -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <fieldset>
+                <legend class="text-sm font-semibold text-gray-700 mb-3">
+                    Travel Style <span class="text-red-500" aria-hidden="true">*</span>
+                </legend>
+                <div class="grid grid-cols-2 gap-3">
+                    {% for style in [("solo", "🧳", "Solo"), ("couple", "💑", "Couple"), ("family", "👨‍👩‍👧‍👦", "Family"), ("group", "👥", "Group")] %}
+                    <label class="flex items-center space-x-2 p-3 border rounded-lg cursor-pointer hover:bg-blue-50 transition-colors has-[:checked]:bg-blue-50 has-[:checked]:border-primary">
+                        <input type="radio" name="travel_style" value="{{ style[0] }}" required
+                               class="text-primary focus:ring-primary"
+                               {{ "checked" if style[0] == "solo" else "" }}>
+                        <span>{{ style[1] }} {{ style[2] }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </fieldset>
+            <div>
+                <label for="group_size" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Group Size
+                </label>
+                <input type="number" id="group_size" name="group_size" value="1"
+                       min="1" max="20"
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            </div>
+        </div>
+
+        <!-- Accessibility Section (collapsible) -->
+        <details class="border rounded-lg p-4">
+            <summary class="text-sm font-semibold text-gray-700 cursor-pointer">
+                ♿ Accessibility & Dietary Needs
+            </summary>
+            <div class="mt-4 space-y-4">
+                <div class="flex items-center space-x-4">
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" name="wheelchair_accessible" class="rounded text-primary focus:ring-primary">
+                        <span>Wheelchair accessible</span>
+                    </label>
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" name="elevator_required" class="rounded text-primary focus:ring-primary">
+                        <span>Elevator required</span>
+                    </label>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600 mb-2">Dietary Restrictions</label>
+                    <div class="flex flex-wrap gap-2">
+                        {% for diet in ["Vegetarian", "Vegan", "Halal", "Kosher", "Gluten-free", "Nut-free"] %}
+                        <label class="flex items-center space-x-1 px-3 py-1 border rounded-full text-sm cursor-pointer hover:bg-gray-100 has-[:checked]:bg-amber-50 has-[:checked]:border-amber-400">
+                            <input type="checkbox" name="dietary_restrictions" value="{{ diet.lower() }}" class="sr-only">
+                            <span>{{ diet }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div>
+                    <label for="mobility_notes" class="block text-sm text-gray-600 mb-1">Additional Mobility Notes</label>
+                    <textarea id="mobility_notes" name="mobility_notes" rows="2"
+                              placeholder="Any specific mobility requirements..."
+                              class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent"></textarea>
+                </div>
+            </div>
+        </details>
+
+        <!-- Submit -->
+        <div class="pt-4">
+            <button type="submit"
+                    class="w-full bg-primary hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-xl text-lg transition-colors focus:ring-4 focus:ring-blue-300">
+                ✨ Generate My Trip
+            </button>
+        </div>
+    </form>
+
+    <!-- Features -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
+        <div class="text-center p-6">
+            <div class="text-3xl mb-3">🤖</div>
+            <h3 class="font-semibold mb-2">AI-Powered Planning</h3>
+            <p class="text-gray-600 text-sm">Google Gemini creates personalized itineraries tailored to your preferences</p>
+        </div>
+        <div class="text-center p-6">
+            <div class="text-3xl mb-3">🗺️</div>
+            <h3 class="font-semibold mb-2">Google Maps Integration</h3>
+            <p class="text-gray-600 text-sm">Real venue data, routes, and interactive maps for every stop</p>
+        </div>
+        <div class="text-center p-6">
+            <div class="text-3xl mb-3">⚡</div>
+            <h3 class="font-semibold mb-2">Real-Time Adaptation</h3>
+            <p class="text-gray-600 text-sm">Weather-aware scheduling and instant itinerary refinement</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Set min date for date inputs to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('start_date').min = today;
+    document.getElementById('end_date').min = today;
+    
+    // Auto-update end_date min when start_date changes
+    document.getElementById('start_date').addEventListener('change', (e) => {
+        const endInput = document.getElementById('end_date');
+        const nextDay = new Date(e.target.value);
+        nextDay.setDate(nextDay.getDate() + 1);
+        endInput.min = nextDay.toISOString().split('T')[0];
+        if (endInput.value && endInput.value <= e.target.value) {
+            endInput.value = nextDay.toISOString().split('T')[0];
+        }
+    });
+</script>
+{% endblock %}

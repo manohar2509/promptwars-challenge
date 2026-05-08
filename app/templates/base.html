@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Travel Planning Engine{% endblock %}</title>
+    <meta name="description" content="AI-powered travel planning with dynamic itineraries, real-time updates, and Google Maps integration">
+    
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
+    
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="/static/style.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        accent: '#F59E0B',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full bg-gray-50 text-gray-900">
+    <!-- Skip navigation for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b" role="navigation" aria-label="Main navigation">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <a href="/" class="flex items-center space-x-2">
+                    <span class="text-2xl" role="img" aria-label="globe">🌍</span>
+                    <span class="text-xl font-bold text-primary">TravelAI</span>
+                </a>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">Powered by Google Gemini</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Loading overlay (hidden by default, shown by HTMX indicator) -->
+    <div id="loading-overlay" class="htmx-indicator fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-2xl p-8 shadow-xl text-center max-w-sm mx-4">
+            <div class="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto mb-4"></div>
+            <p class="text-lg font-semibold text-gray-800">Planning your trip...</p>
+            <p class="text-sm text-gray-500 mt-2">Our AI is crafting your perfect itinerary</p>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <main id="main-content" role="main" class="min-h-[calc(100vh-8rem)]">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t py-6 mt-8" role="contentinfo">
+        <div class="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500">
+            <p>Travel Planning & Experience Engine — PromptWars Hyderabad 2026</p>
+            <p class="mt-1">Built with FastAPI, Google Gemini, Google Maps & HTMX</p>
+        </div>
+    </footer>
+
+    <!-- App JavaScript -->
+    <script src="/static/app.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

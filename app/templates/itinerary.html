@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}{{ itinerary.destination }} Trip — TravelAI{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">
+                🌍 {{ itinerary.days|length }}-Day Trip to {{ itinerary.destination }}
+            </h1>
+            <p class="text-gray-600 mt-1">
+                {{ itinerary.days[0].date.strftime('%b %d') }} — {{ itinerary.days[-1].date.strftime('%b %d, %Y') }}
+                {% if itinerary.preferences_summary %}· {{ itinerary.preferences_summary }}{% endif %}
+            </p>
+        </div>
+        <div class="flex space-x-3 mt-4 md:mt-0">
+            <a href="/api/plan/{{ plan_id }}/export"
+               class="inline-flex items-center px-4 py-2 bg-secondary hover:bg-green-600 text-white rounded-lg font-medium transition-colors focus:ring-4 focus:ring-green-300">
+                📅 Export Calendar
+            </a>
+            <a href="/"
+               class="inline-flex items-center px-4 py-2 border border-gray-300 hover:bg-gray-100 rounded-lg font-medium transition-colors">
+                ➕ New Trip
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content: Two columns -->
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        
+        <!-- Left: Itinerary Timeline (3/5) -->
+        <div class="lg:col-span-3">
+            <!-- Day Tabs -->
+            <div class="flex overflow-x-auto space-x-1 mb-6 border-b" role="tablist" aria-label="Trip days">
+                {% for day in itinerary.days %}
+                <button class="day-tab px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors
+                              {% if loop.first %}active border-primary text-primary{% else %}border-transparent text-gray-500 hover:text-gray-700{% endif %}"
+                        role="tab"
+                        aria-selected="{{ 'true' if loop.first else 'false' }}"
+                        aria-controls="day-content"
+                        hx-get="/api/plan/{{ plan_id }}/day/{{ day.day_number }}"
+                        hx-target="#day-content"
+                        hx-swap="innerHTML"
+                        onclick="document.querySelectorAll('.day-tab').forEach(t => { t.classList.remove('active', 'border-primary', 'text-primary'); t.classList.add('border-transparent', 'text-gray-500'); t.setAttribute('aria-selected', 'false'); }); this.classList.add('active', 'border-primary', 'text-primary'); this.classList.remove('border-transparent', 'text-gray-500'); this.setAttribute('aria-selected', 'true');">
+                    Day {{ day.day_number }} · {{ day.date.strftime('%b %d') }}
+                </button>
+                {% endfor %}
+            </div>
+
+            <!-- Day Content (HTMX swap target) -->
+            <div id="day-content" role="tabpanel" aria-label="Day details">
+                {% include "partials/day_view.html" %}
+            </div>
+        </div>
+
+        <!-- Right: Map + Budget + Chat (2/5) -->
+        <div class="lg:col-span-2 space-y-6">
+            
+            <!-- Map -->
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <h2 class="px-4 py-3 font-semibold text-gray-800 border-b">🗺️ Route Map</h2>
+                <div id="map" class="h-64 bg-gray-100 flex items-center justify-center">
+                    {% if maps_api_key %}
+                    <p class="text-gray-400 text-sm">Loading map...</p>
+                    {% else %}
+                    <p class="text-gray-400 text-sm p-4 text-center">Map unavailable — set GOOGLE_MAPS_API_KEY to enable</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Budget -->
+            <div id="budget-section" class="bg-white rounded-xl shadow-sm p-4">
+                {% include "partials/budget_chart.html" %}
+            </div>
+
+            <!-- Chat Refinement -->
+            <div class="bg-white rounded-xl shadow-sm">
+                <h2 class="px-4 py-3 font-semibold text-gray-800 border-b">💬 Refine Your Trip</h2>
+                <div id="chat-log" class="p-4 space-y-3 max-h-48 overflow-y-auto">
+                    <p class="text-sm text-gray-500 italic">Try: "Make day 2 more relaxed" or "Add more food experiences"</p>
+                </div>
+                <div class="p-4 border-t">
+                    <form hx-post="/api/plan/{{ plan_id }}/refine"
+                          hx-target="#day-content"
+                          hx-swap="innerHTML"
+                          hx-indicator="#loading-overlay"
+                          class="flex space-x-2"
+                          onsubmit="
+                            const input = this.querySelector('input[name=text]');
+                            const chatLog = document.getElementById('chat-log');
+                            chatLog.innerHTML += '<div class=&quot;bg-blue-50 rounded-lg p-3 text-sm&quot;><strong>You:</strong> ' + input.value + '</div>';
+                            setTimeout(() => { input.value = ''; }, 0);
+                          ">
+                        <input type="hidden" name="text" value="">
+                        <input type="text" placeholder="How would you like to change the plan?"
+                               class="flex-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+                               aria-label="Refinement message"
+                               oninput="this.previousElementSibling.value = this.value"
+                               maxlength="1000">
+                        <button type="submit"
+                                class="px-4 py-2 bg-primary hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors focus:ring-4 focus:ring-blue-300">
+                            Send
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Alert Banner (HTMX swap target) -->
+            <div id="alert-area" aria-live="polite"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if maps_api_key %}
+<script id="itinerary-data" type="application/json">{{ itinerary.days | tojson | safe }}</script>
+<script>
+    function initMapFromItinerary() {
+        const slots = JSON.parse(document.getElementById('itinerary-data').textContent);
+        const markers = [];
+        slots.forEach(day => {
+            day.slots.forEach(slot => {
+                if (slot.location && slot.location.lat && slot.location.lng) {
+                    markers.push({lat: slot.location.lat, lng: slot.location.lng, name: slot.activity_name});
+                }
+            });
+        });
+        if (markers.length > 0) {
+            initMap(markers, markers[0]);
+        }
+    }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ maps_api_key }}&callback=initMapFromItinerary" async defer></script>
+{% endif %}
+{% endblock %}

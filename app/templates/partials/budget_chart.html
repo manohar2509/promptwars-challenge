@@ -1,0 +1,44 @@
+{% set budget = itinerary.budget if itinerary is defined else budget %}
+{% set pct = ((budget.spent / budget.total_budget) * 100) if budget.total_budget > 0 else 0 %}
+{% set pct_clamped = [pct, 100] | min %}
+
+<h2 class="font-semibold text-gray-800 mb-3">💰 Budget Breakdown</h2>
+
+<!-- Progress bar -->
+<div class="mb-4">
+    <div class="flex justify-between text-sm mb-1">
+        <span class="text-gray-600">Spent</span>
+        <span class="font-semibold {% if pct > 100 %}text-red-600{% elif pct > 90 %}text-amber-600{% else %}text-green-600{% endif %}">
+            ${{ "%.0f"|format(budget.spent) }} / ${{ "%.0f"|format(budget.total_budget) }}
+        </span>
+    </div>
+    <div class="w-full bg-gray-200 rounded-full h-3" role="progressbar" aria-valuenow="{{ pct_clamped|int }}" aria-valuemin="0" aria-valuemax="100" aria-label="Budget usage">
+        <div class="budget-bar h-3 rounded-full {% if pct > 100 %}bg-red-500{% elif pct > 90 %}bg-amber-500{% else %}bg-green-500{% endif %}"
+             style="width: {{ pct_clamped }}%"></div>
+    </div>
+    <p class="text-xs text-gray-500 mt-1">
+        {% if budget.remaining > 0 %}
+        ${{ "%.0f"|format(budget.remaining) }} remaining
+        {% else %}
+        ⚠️ Over budget by ${{ "%.0f"|format(-budget.remaining) }}
+        {% endif %}
+    </p>
+</div>
+
+<!-- Category breakdown -->
+<div class="grid grid-cols-2 gap-2 text-sm">
+    {% for cat, amount, icon in [
+        ("Accommodation", budget.accommodation, "🏨"),
+        ("Transport", budget.transport, "🚗"),
+        ("Food", budget.food, "🍽️"),
+        ("Activities", budget.activities, "🎯")
+    ] %}
+    <div class="flex items-center space-x-2 p-2 bg-gray-50 rounded-lg">
+        <span>{{ icon }}</span>
+        <div>
+            <p class="text-gray-500 text-xs">{{ cat }}</p>
+            <p class="font-medium">${{ "%.0f"|format(amount) }}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
