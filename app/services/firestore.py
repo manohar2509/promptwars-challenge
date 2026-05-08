@@ -37,7 +37,10 @@ class FirestoreService:
                 self.db = firestore.AsyncClient(
                     project=settings.google_cloud_project,
                 )
-                logger.info("Firestore client initialised for project %s", settings.google_cloud_project)
+                logger.info(
+                    "Firestore client initialised for project %s",
+                    settings.google_cloud_project,
+                )
             except Exception as exc:
                 logger.warning("Firestore unavailable, using in-memory: %s", exc)
 

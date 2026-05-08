@@ -15,7 +15,7 @@ def clear_store():
     FirestoreService.clear_memory_store()
 
 
-def _make_itinerary(id: str = "test-1") -> Itinerary:
+def _make_itinerary(itinerary_id: str = "test-1") -> Itinerary:
     slot = ActivitySlot(
         time_slot=TimeSlot.morning,
         activity_name="Test Activity",
@@ -26,7 +26,7 @@ def _make_itinerary(id: str = "test-1") -> Itinerary:
     )
     day = ItineraryDay(day_number=1, date=date(2026, 6, 1), slots=[slot], day_budget=10.0)
     budget = BudgetBreakdown(total_budget=100, spent=10, remaining=90)
-    return Itinerary(id=id, destination="Test City", days=[day], budget=budget)
+    return Itinerary(id=itinerary_id, destination="Test City", days=[day], budget=budget)
 
 
 class TestFirestoreService:

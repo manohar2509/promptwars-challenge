@@ -6,7 +6,7 @@ calendar applications.
 """
 
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, ClassVar
 
 from icalendar import Calendar, Event
 
@@ -20,7 +20,7 @@ class CalendarService:
     (morning, afternoon, evening) to fixed local hours.
     """
 
-    SLOT_HOURS: dict[str, int] = {"morning": 9, "afternoon": 13, "evening": 18}
+    SLOT_HOURS: ClassVar[dict[str, int]] = {"morning": 9, "afternoon": 13, "evening": 18}
 
     def generate_ics(self, itinerary: Itinerary) -> bytes:
         """Generate .ics file content from an itinerary.

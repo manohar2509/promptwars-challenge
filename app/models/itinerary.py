@@ -26,9 +26,9 @@ class ActivitySlot(BaseModel):
         time_slot: Morning, afternoon, or evening.
         place_id: Optional Google Places ID for deep-linking.
         activity_name: Human-readable venue or activity name.
-        description: 2–3 sentence description of the experience.
-        duration_minutes: Expected duration (30–480 minutes).
-        estimated_cost: Estimated cost in local currency (≥ 0).
+        description: 2-3 sentence description of the experience.
+        duration_minutes: Expected duration (30-480 minutes).
+        estimated_cost: Estimated cost in local currency (>= 0).
         category: One of food, transport, activity, accommodation.
         location: Optional geocoded coordinates and address.
         alternatives: Up to 2 alternative activities for this slot.
@@ -59,7 +59,7 @@ class ItineraryDay(BaseModel):
     Attributes:
         day_number: 1-indexed day number within the trip.
         date: Calendar date for this day.
-        slots: 1–4 activity slots scheduled for this day.
+        slots: 1-4 activity slots scheduled for this day.
         day_summary: AI-generated summary of the day's plan.
         day_budget: Total estimated spend for this day.
     """

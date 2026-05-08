@@ -135,19 +135,23 @@ class TestWeatherService:
 
     def test_should_swap_indoor_rain(self):
         service = WeatherService()
-        assert service.should_swap_indoor({"precipitation_prob": 70, "temp_max": 25, "weather_code": 1})
+        forecast = {"precipitation_prob": 70, "temp_max": 25, "weather_code": 1}
+        assert service.should_swap_indoor(forecast)
 
     def test_should_swap_indoor_extreme_heat(self):
         service = WeatherService()
-        assert service.should_swap_indoor({"precipitation_prob": 10, "temp_max": 45, "weather_code": 1})
+        forecast = {"precipitation_prob": 10, "temp_max": 45, "weather_code": 1}
+        assert service.should_swap_indoor(forecast)
 
     def test_should_swap_indoor_thunderstorm(self):
         service = WeatherService()
-        assert service.should_swap_indoor({"precipitation_prob": 30, "temp_max": 25, "weather_code": 95})
+        forecast = {"precipitation_prob": 30, "temp_max": 25, "weather_code": 95}
+        assert service.should_swap_indoor(forecast)
 
     def test_should_not_swap_indoor_nice_day(self):
         service = WeatherService()
-        assert not service.should_swap_indoor({"precipitation_prob": 10, "temp_max": 25, "weather_code": 1})
+        forecast = {"precipitation_prob": 10, "temp_max": 25, "weather_code": 1}
+        assert not service.should_swap_indoor(forecast)
 
 
 # --- Calendar Tests ---

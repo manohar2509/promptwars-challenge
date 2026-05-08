@@ -96,7 +96,7 @@ class TravelPreferences(BaseModel):
         default=1,
         ge=1,
         le=20,
-        description="Number of travellers (1–20).",
+        description="Number of travellers (1-20).",
     )
     accessibility: AccessibilityNeeds = Field(default_factory=AccessibilityNeeds)
 

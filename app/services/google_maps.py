@@ -7,7 +7,7 @@ so the planner can continue gracefully.
 """
 
 import logging
-from typing import Any
+from typing import Any, ClassVar
 
 import httpx
 
@@ -34,7 +34,7 @@ class GoogleMapsService:
     GEOCODE_URL = "https://maps.googleapis.com/maps/api/geocode/json"
 
     # Class-level geocode cache shared across instances for efficiency.
-    _geocode_cache: dict[str, dict[str, float]] = {}
+    _geocode_cache: ClassVar[dict[str, dict[str, float]]] = {}
 
     def __init__(self) -> None:
         self.api_key: str = settings.google_maps_api_key

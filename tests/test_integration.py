@@ -368,7 +368,10 @@ class TestEdgeCases:
             "start_date": (date.today() + timedelta(days=7)).isoformat(),
             "end_date": (date.today() + timedelta(days=10)).isoformat(),
             "budget_amount": 2000,
-            "interests": ["culture", "food", "adventure", "relaxation", "nightlife", "nature", "shopping"],
+            "interests": [
+                "culture", "food", "adventure", "relaxation",
+                "nightlife", "nature", "shopping",
+            ],
             "travel_style": "group",
             "group_size": 5,
         }
