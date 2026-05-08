@@ -18,8 +18,9 @@ gcloud run deploy "$SERVICE_NAME" \
     --project "$PROJECT_ID" \
     --region "$REGION" \
     --allow-unauthenticated \
-    --memory 512Mi \
-    --max-instances 3 \
+    --memory 256Mi \
+    --min-instances 0 \
+    --max-instances 1 \
     --set-env-vars "ENVIRONMENT=production" \
     --set-secrets "GEMINI_API_KEY=gemini-api-key:latest,GOOGLE_MAPS_API_KEY=google-maps-api-key:latest"
 
